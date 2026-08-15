@@ -2,36 +2,10 @@
 # Install Immich on Kubernetes (Longhorn + official Immich images).
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-need() {
-  command -v "$1" >/dev/null 2>&1 || {
-    echo "Missing required command: $1" >&2
-    exit 1
-  }
-}
-
-need kubectl
-need openssl
-
-if ! kubectl get storageclass longhorn >/dev/null 2>&1; then
-  cat <<'EOF' >&2
-Longhorn storage class not found.
-
-Install Longhorn first (one-time, shared by these homelab apps):
-
-  helm repo add longhorn https://charts.longhorn.io
-  helm repo update
-  helm install longhorn longhorn/longhorn \
-    --namespace longhorn-system --create-namespace
-
-Wait until pods are ready:
-
-  kubectl -n longhorn-system get pod
-
-Then re-run this script.
-EOF
-  exit 1
-fi
+# shellcheck source=deps.sh
+source "${ROOT}/deps.sh"
+ensure_host_deps k8s
+ensure_longhorn_storage
 
 PASS="$(openssl rand -base64 36 | tr -d '\n/+=\n' | tr -cd 'A-Za-z0-9' | head -c 32)"
 

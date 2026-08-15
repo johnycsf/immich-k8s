@@ -10,19 +10,11 @@ Uses **Immich’s official GHCR images** (server, machine-learning, Immich Postg
 
 ## What you need
 
-- A Kubernetes cluster (`kubectl`)
-- StorageClass named `longhorn` (install Longhorn once for the cluster)
-- `openssl`
+- A Kubernetes cluster (`kubectl` context already set)
+- `sudo` on this machine so `./install.sh` can install missing tools (kubectl, helm, curl, openssl, rsync, …)
+- Disk for PersistentVolumes (Longhorn is installed automatically if the `longhorn` StorageClass is missing)
 
-## Install Longhorn (once)
-
-```bash
-helm repo add longhorn https://charts.longhorn.io
-helm repo update
-helm install longhorn longhorn/longhorn \
-  --namespace longhorn-system --create-namespace
-kubectl -n longhorn-system get pod
-```
+`./install.sh` detects your OS and installs host dependencies automatically.
 
 ## Install Immich
 

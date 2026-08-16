@@ -5,6 +5,8 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=deps.sh
 source "${ROOT}/deps.sh"
 cd "$ROOT"
+# shellcheck source=backup-encrypt.sh
+source "${ROOT}/backup-encrypt.sh"
 NS=immich
 STACK_ID="immich-k8s"
 
@@ -18,18 +20,39 @@ need_rsync() {
 usage() {
   cat <<'EOF'
 Usage:
-  ./backup.sh --dest /path/to/backup-root [--keep N] [--include-model-cache]
-  ./backup.sh --restore --from /path/to/backup-root-or-snapshot
+  ./backup.sh --dest /path/to/backup-root [--keep N] [--include-model-cache] [--encrypt]
+  ./backup.sh --restore --from /path/to/backup-root-or-snapshot-or.tar.age
   ./backup.sh --help
+
+  --encrypt / --export-dir / --age-recipient / --age-identity / --passphrase
+  SHA256 = integrity; age = optional encrypted offsite export.
 EOF
 }
 
 MODE=""; DEST=""; FROM=""; KEEP=""; INCLUDE_MODEL_CACHE=0
+ENCRYPT="${BACKUP_ENCRYPT:-0}"
+EXPORT_DIR="${BACKUP_EXPORT_DIR:-}"
+ENCRYPT_PASSPHRASE=0
+AGE_RECIPIENTS=()
+AGE_IDENTITY="${BACKUP_AGE_IDENTITY:-}"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --dest) DEST="$2"; MODE="${MODE:-backup}"; shift 2 ;;
     --from) FROM="$2"; shift 2 ;;
     --restore) MODE="restore"; shift ;;
+    --encrypt)
+      ENCRYPT=1; shift ;;
+    --export-dir)
+      [[ $# -ge 2 ]] || { echo "--export-dir needs a path" >&2; exit 1; }
+      EXPORT_DIR="$2"; shift 2 ;;
+    --age-recipient)
+      [[ $# -ge 2 ]] || { echo "--age-recipient needs a value" >&2; exit 1; }
+      AGE_RECIPIENTS+=("$2"); shift 2 ;;
+    --age-identity)
+      [[ $# -ge 2 ]] || { echo "--age-identity needs a path" >&2; exit 1; }
+      AGE_IDENTITY="$2"; shift 2 ;;
+    --passphrase)
+      ENCRYPT=1; ENCRYPT_PASSPHRASE=1; shift ;;
     --keep) KEEP="$2"; shift 2 ;;
     --include-model-cache) INCLUDE_MODEL_CACHE=1; shift ;;
     -h|--help) usage; exit 0 ;;
@@ -245,6 +268,7 @@ db_method=pg_dump
 EOF
   trap - EXIT
   seal_snapshot "${SNAP_DIR}"
+  maybe_encrypt_after_seal
   finalize_snapshot "$DEST"
   prune_snapshots "$DEST" "${KEEP}"
   echo "Backup OK."
@@ -253,8 +277,10 @@ EOF
 do_restore() {
   need kubectl; need_rsync
   [[ -n "$FROM" ]] || { echo "Provide --from" >&2; exit 1; }
-  local snap
-  snap="$(resolve_snapshot_dir "$FROM")"
+  local snap src
+  src="$(prepare_restore_from_arg "$FROM")"
+  trap cleanup_restore_tmp EXIT
+  snap="$(resolve_snapshot_dir "$src")"
   echo "Restoring from: $snap"
   verify_snapshot_integrity "$snap"
   [[ -f "${snap}/immich-db.sql.gz" ]] || { echo "Missing dump" >&2; exit 1; }

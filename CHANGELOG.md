@@ -18,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/) where tagged releases exist.
 
 ## [Unreleased]
+- Document batching related fixes into one `testing` → `main` PR (avoid one-PR-per-microfix).
 - Fix backup dump verification under `pipefail` (gzip|head SIGPIPE looked like a bad dump).
 - Backup `--dest` always nests under `<dest>/<STACK_ID>/` so multiple services share one disk without mixing.
 - Fix restore abort: empty optional ports tripped `set -e` in save_host_install_env.

@@ -79,6 +79,10 @@ kubectl delete namespace immich
 # PVCs/data are removed with the namespace when using Longhorn reclaim policies as configured
 ```
 
+## Credits
+
+This repo packages or configures upstream software. See [CREDITS.md](CREDITS.md) for the main developers and projects this work builds on.
+
 ## Disclaimer
 
 This project is provided **as is**. The author is **not responsible** for any loss, damage, data corruption, downtime, security issues, or other consequences from using it. Full text: [DISCLAIMER.md](DISCLAIMER.md).

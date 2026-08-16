@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
-# Install Immich on Kubernetes (Longhorn + official Immich images).
+# Install Immich on Kubernetes (official Immich images; storage class chosen at install time).
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=deps.sh
 source "${ROOT}/deps.sh"
 ensure_host_deps k8s
-ensure_longhorn_storage
+configure_k8s_storage
 
 PASS="$(openssl rand -base64 36 | tr -d '\n/+=\n' | tr -cd 'A-Za-z0-9' | head -c 32)"
 
 echo "Applying manifests..."
-kubectl apply -f "${ROOT}/deploy.yaml"
+apply_manifest "${ROOT}/deploy.yaml"
 
 echo "Writing database Secret..."
 kubectl -n immich create secret generic immich-db \

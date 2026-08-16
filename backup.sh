@@ -2,6 +2,8 @@
 # Immich k8s disaster-recovery backup/restore (incremental library + Postgres dump).
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=deps.sh
+source "${ROOT}/deps.sh"
 cd "$ROOT"
 NS=immich
 STACK_ID="immich-k8s"
@@ -266,7 +268,7 @@ do_restore() {
   fi
 
   if ! kubectl -n "$NS" get deploy immich-server >/dev/null 2>&1; then
-    kubectl apply -f "${ROOT}/deploy.yaml"
+    apply_manifest "${ROOT}/deploy.yaml"
   fi
   if [[ -f "${snap}/secret-immich-db.yaml" ]]; then
     kubectl -n "$NS" apply -f "${snap}/secret-immich-db.yaml"

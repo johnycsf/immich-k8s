@@ -89,10 +89,10 @@ create_backup() {
 }
 
 need kubectl
-if ! kubectl get storageclass longhorn >/dev/null 2>&1; then
-  echo "Longhorn StorageClass not found." >&2
-  exit 1
-fi
+# shellcheck source=deps.sh
+source "${ROOT}/deps.sh"
+require_storage_class
+
 if ! kubectl -n "$NS" get deploy immich-server >/dev/null 2>&1; then
   echo "Immich is not installed yet. Run ./install.sh first." >&2
   exit 1
@@ -101,7 +101,7 @@ fi
 create_backup
 
 echo "==> Applying manifests..."
-kubectl apply -f "${ROOT}/deploy.yaml"
+apply_manifest "${ROOT}/deploy.yaml"
 echo "==> Rolling out (picks up newer :v3 / image digests)..."
 kubectl -n "$NS" rollout restart deployment/database deployment/redis deployment/immich-server deployment/immich-machine-learning
 kubectl -n "$NS" rollout status deployment/database --timeout=300s

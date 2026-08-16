@@ -2,8 +2,9 @@
 
 ![Repobeats analytics image](https://repobeats.axiom.co/api/embed/5f30bdb914c6fd7b0af52c0e46864ee86df199ee.svg "Repobeats analytics image")
 
-
 [![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/johnycsf)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Issues](https://img.shields.io/badge/issues-welcome-lightgrey.svg)](../../issues/new/choose)
 
 Deploy [Immich](https://immich.app/) on Kubernetes.
 
@@ -11,6 +12,15 @@ Docker version: [immich-docker](https://github.com/johnycsf/immich-docker)
 
 Uses **Immich’s official GHCR images** (server, machine-learning, Immich Postgres) plus **Valkey** (Redis-compatible cache from Immich’s official install stack). No LinuxServer or unofficial Immich forks.
 
+**Immich on Kubernetes for homelab beginners** — official images, StorageClass/replica prompts, safe updates & backups.
+
+> **Choose your path:** [Docker Compose](https://github.com/johnycsf/immich-docker) · **Kubernetes (this repo)**
+
+## Who this is for
+
+**Good fit:** small k3s/homelab clusters where you want Immich without hand-writing a pile of manifests.
+
+**Not for:** large multi-tenant production clusters — keep replicas conservative (RWO volumes) and read the install prompts.
 
 ## Why this repo (not just another manifest dump)
 
@@ -22,6 +32,18 @@ Uses **Immich’s official GHCR images** (server, machine-learning, Immich Postg
 - Incremental hardlink **`./backup.sh`** + restore
 - **Official upstream images only**
 
+## Support this work
+
+If this stack saved you setup time, please consider sponsoring — it funds:
+
+- Keeping install/update/backup scripts working across common Linux distros
+- Testing safe upgrades against **official** upstream images
+- Building more beginner-friendly stacks that share the same `./manage.sh` UX
+
+[![Sponsor johnycsf](https://img.shields.io/badge/GitHub%20Sponsors-Donate-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/johnycsf)
+
+👉 **[github.com/sponsors/johnycsf](https://github.com/sponsors/johnycsf)**
+
 ## What you need
 
 - A Kubernetes cluster (`kubectl` context already set)
@@ -29,8 +51,6 @@ Uses **Immich’s official GHCR images** (server, machine-learning, Immich Postg
 - Disk for PersistentVolumes
 
 `./install.sh` is interactive (colors + step progress). It asks for **StorageClass** and **replica count** (with a safe per-app suggestion). Re-run it later to change those choices. Non-interactive: `STORAGE_CLASS=longhorn REPLICAS=1 ./install.sh`.
-
-
 
 ## Install Immich
 
@@ -45,6 +65,8 @@ chmod +x manage.sh install.sh
 Open the URL printed by the script and create your admin account.
 
 The library PVC defaults to **100Gi** — edit `deploy.yaml` before install if you need more space.
+
+Liked the install? Star the repo or [sponsor johnycsf](https://github.com/sponsors/johnycsf) so more stacks stay maintained.
 
 ## Update
 
@@ -91,11 +113,6 @@ This project is provided **as is**. The author is **not responsible** for any lo
 
 If you hit an error, please [open a GitHub Issue](../../issues/new/choose) and follow [CONTRIBUTING.md](CONTRIBUTING.md). Fixes via Pull Request are welcome. GitHub Issues/PRs are the supported way to report problems—there is no private support channel.
 
-## Support this work
+## Security
 
-If these homelab tools save you time, please consider sponsoring:
-
-[![Sponsor johnycsf](https://img.shields.io/badge/GitHub%20Sponsors-Donate-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/johnycsf)
-
-👉 **[github.com/sponsors/johnycsf](https://github.com/sponsors/johnycsf)** — tips and monthly support keep these beginner-friendly stacks maintained.
-
+See [SECURITY.md](SECURITY.md) for how to report vulnerabilities.

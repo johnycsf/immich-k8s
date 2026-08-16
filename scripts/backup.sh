@@ -20,7 +20,7 @@ need_rsync() {
 usage() {
   cat <<'EOF'
 Usage:
-  ./manage.sh backup --dest /path/to/backup-root [--keep N] [--include-model-cache] [--archive FMT] [--encrypt]
+  ./manage.sh backup --dest /mnt/backup [--keep N] [--include-model-cache] [--archive FMT] [--encrypt]
   ./manage.sh backup --restore --from /path/to/backup-root-or-snapshot-or.tar.age
   ./manage.sh backup --help
 
@@ -220,7 +220,9 @@ push_pod_tree() {
 do_backup() {
   need kubectl; need_rsync
   [[ -n "$DEST" ]] || { echo "Provide --dest" >&2; exit 1; }
+  DEST="$(resolve_stack_backup_dest "${STACK_ID}" "${DEST}")"
   DEST="$(mkdir -p "$DEST" && cd "$DEST" && pwd)"
+  echo "==> Stack backup root: ${DEST}"
   prepare_snapshot_dirs "$DEST"
   echo "==> Snapshot ${SNAP_NAME}"
 
@@ -285,6 +287,7 @@ EOF
 do_restore() {
   need kubectl; need_rsync
   [[ -n "$FROM" ]] || { echo "Provide --from" >&2; exit 1; }
+  FROM="$(resolve_stack_backup_from "${STACK_ID}" "${FROM}")"
   local snap src
   src="$(prepare_restore_from_arg "$FROM")"
   trap cleanup_restore_tmp EXIT

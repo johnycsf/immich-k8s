@@ -2,7 +2,7 @@
 
 ![Repobeats analytics image](https://repobeats.axiom.co/api/embed/5f30bdb914c6fd7b0af52c0e46864ee86df199ee.svg "Repobeats analytics image")
 
-Deploy [Immich](https://immich.app/) on Kubernetes on Kubernetes.
+Deploy [Immich](https://immich.app/) on Kubernetes.
 
 Docker version: [immich-docker](https://github.com/johnycsf/immich-docker)
 

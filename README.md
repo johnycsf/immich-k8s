@@ -2,11 +2,25 @@
 
 ![Repobeats analytics image](https://repobeats.axiom.co/api/embed/5f30bdb914c6fd7b0af52c0e46864ee86df199ee.svg "Repobeats analytics image")
 
+
+[![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/johnycsf)
+
 Deploy [Immich](https://immich.app/) on Kubernetes.
 
 Docker version: [immich-docker](https://github.com/johnycsf/immich-docker)
 
 Uses **Immich’s official GHCR images** (server, machine-learning, Immich Postgres) plus **Valkey** (Redis-compatible cache from Immich’s official install stack). No LinuxServer or unofficial Immich forks.
+
+
+## Why this repo (not just another manifest dump)
+
+- **`./manage.sh`** control center — install, update, backup, status/doctor, uninstall
+- Interactive colored install with step progress
+- Auto-detects your OS and installs missing host tools (`kubectl`, `helm`, …)
+- Choose **StorageClass** and **replica count** (re-run anytime to change)
+- Safe **`./update.sh`** with automatic pre-update backup
+- Incremental hardlink **`./backup.sh`** + restore
+- **Official upstream images only**
 
 ## What you need
 
@@ -23,8 +37,9 @@ Uses **Immich’s official GHCR images** (server, machine-learning, Immich Postg
 ```bash
 git clone https://github.com/johnycsf/immich-k8s.git
 cd immich-k8s
-chmod +x install.sh
-./install.sh
+chmod +x manage.sh install.sh
+./manage.sh          # interactive control center
+# or: ./install.sh
 ```
 
 Open the URL printed by the script and create your admin account.
@@ -63,3 +78,12 @@ Postgres uses a verified logical dump. The photo library is archived from the ru
 kubectl delete namespace immich
 # PVCs/data are removed with the namespace when using Longhorn reclaim policies as configured
 ```
+
+## Support this work
+
+If these homelab tools save you time, please consider sponsoring:
+
+[![Sponsor johnycsf](https://img.shields.io/badge/GitHub%20Sponsors-Donate-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/johnycsf)
+
+👉 **[github.com/sponsors/johnycsf](https://github.com/sponsors/johnycsf)** — tips and monthly support keep these beginner-friendly stacks maintained.
+

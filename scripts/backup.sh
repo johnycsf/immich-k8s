@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # Immich k8s disaster-recovery backup/restore (incremental library + Postgres dump).
 set -euo pipefail
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=deps.sh
-source "${ROOT}/deps.sh"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=scripts/deps.sh
+source "${ROOT}/scripts/deps.sh"
 cd "$ROOT"
-# shellcheck source=backup-encrypt.sh
-source "${ROOT}/backup-encrypt.sh"
+# shellcheck source=scripts/backup-encrypt.sh
+source "${ROOT}/scripts/backup-encrypt.sh"
 NS=immich
 STACK_ID="immich-k8s"
 
@@ -20,9 +20,9 @@ need_rsync() {
 usage() {
   cat <<'EOF'
 Usage:
-  ./backup.sh --dest /path/to/backup-root [--keep N] [--include-model-cache] [--archive FMT] [--encrypt]
-  ./backup.sh --restore --from /path/to/backup-root-or-snapshot-or.tar.age
-  ./backup.sh --help
+  ./manage.sh backup --dest /path/to/backup-root [--keep N] [--include-model-cache] [--archive FMT] [--encrypt]
+  ./manage.sh backup --restore --from /path/to/backup-root-or-snapshot-or.tar.age
+  ./manage.sh backup --help
 
   --archive tar.gz|tar.xz|zip [--archive-password]
   --encrypt / --export-dir / --age-recipient / --age-identity / --passphrase

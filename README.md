@@ -28,8 +28,8 @@ Uses **Immich’s official GHCR images** (server, machine-learning, Immich Postg
 - Interactive colored install with step progress
 - Auto-detects your OS and installs missing host tools (`kubectl`, `helm`, …)
 - Choose **StorageClass** and **replica count** (re-run anytime to change)
-- Safe **`./update.sh`** with automatic pre-update backup
-- Incremental hardlink **`./backup.sh`** + restore
+- Safe **`./manage.sh update`** with automatic pre-update backup
+- Incremental hardlink **`./manage.sh backup`** + restore
 - **Official upstream images only**
 
 ## Support this work
@@ -47,10 +47,10 @@ If this stack saved you setup time, please consider sponsoring — it funds:
 ## What you need
 
 - A Kubernetes cluster (`kubectl` context already set)
-- `sudo` on this machine so `./install.sh` can install missing tools (kubectl, helm, curl, openssl, rsync, …)
+- `sudo` on this machine so `./manage.sh` can install missing tools (kubectl, helm, curl, openssl, rsync, …)
 - Disk for PersistentVolumes
 
-`./install.sh` is interactive (colors + step progress). It asks for **StorageClass** and **replica count** (with a safe per-app suggestion). Re-run it later to change those choices. Non-interactive: `STORAGE_CLASS=longhorn REPLICAS=1 ./install.sh`.
+`./manage.sh` is interactive (colors + step progress). It asks for **StorageClass** and **replica count** (with a safe per-app suggestion). Re-run it later to change those choices. Non-interactive: `STORAGE_CLASS=longhorn REPLICAS=1 ./manage.sh`.
 
 ## Interactive control center
 
@@ -61,9 +61,9 @@ If this stack saved you setup time, please consider sponsoring — it funds:
 ```bash
 git clone https://github.com/johnycsf/immich-k8s.git
 cd immich-k8s
-chmod +x manage.sh install.sh
+chmod +x manage.sh
 ./manage.sh          # interactive control center
-# or: ./install.sh
+# or: ./manage.sh
 ```
 
 Open the URL printed by the script and create your admin account.
@@ -75,25 +75,23 @@ Liked the install? Star the repo or [sponsor johnycsf](https://github.com/sponso
 ## Update
 
 ```bash
-chmod +x update.sh
-./update.sh
+./manage.sh update
 ```
 
-Runs `./backup.sh` first, then reapplies manifests and rolls out new images. Asks how many local backups to keep.
+Runs `./manage.sh backup` first, then reapplies manifests and rolls out new images. Asks how many local backups to keep.
 
 Restore:
 
 ```bash
-./backup.sh --restore --from ./backups
-./backup.sh --restore --from /mnt/usb/immich-backups
+./manage.sh backup --restore --from ./backups
+./manage.sh backup --restore --from /mnt/usb/immich-backups
 ```
 
 ## Disaster recovery
 
 ```bash
-chmod +x backup.sh
-./backup.sh --dest /mnt/usb/immich-k8s-backups --keep 3
-./backup.sh --restore --from /mnt/usb/immich-k8s-backups
+./manage.sh backup --dest /mnt/usb/immich-k8s-backups --keep 3
+./manage.sh backup --restore --from /mnt/usb/immich-k8s-backups
 ```
 
 Postgres uses a verified logical dump. The photo library is archived from the running pod then stored with incremental rsync hardlinks. SHA256 seals dumps/config; the library uses a fast inventory fingerprint. Restore warns (does not abort) if integrity looks wrong.
@@ -119,7 +117,7 @@ If you hit an error, please [open a GitHub Issue](../../issues/new/choose) and f
 
 ## Backup exports
 
-Local snapshots stay as incremental hardlink trees (fast rollback). Optionally create a compressed offsite copy with `./backup.sh --dest ./backups --archive tar.gz|tar.xz|zip` (add `--archive-password` for zip password or age-passphrase on tar). For stronger key-based encryption use `--encrypt` (age). See repo-framework `docs/BACKUP_ENCRYPTION.md`.
+Local snapshots stay as incremental hardlink trees (fast rollback). Optionally create a compressed offsite copy with `./manage.sh backup --dest ./backups --archive tar.gz|tar.xz|zip` (add `--archive-password` for zip password or age-passphrase on tar). For stronger key-based encryption use `--encrypt` (age). See repo-framework `docs/BACKUP_ENCRYPTION.md`.
 
 ## Security
 

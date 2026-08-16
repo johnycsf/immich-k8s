@@ -3,9 +3,9 @@
 # Re-run anytime to change StorageClass preference or replica count.
 # Does NOT rotate the DB password on re-run if the Secret already exists.
 set -euo pipefail
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=deps.sh
-source "${ROOT}/deps.sh"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=scripts/deps.sh
+source "${ROOT}/scripts/deps.sh"
 
 ui_banner "Immich" "Kubernetes · official images · storage + replicas interactive"
 ui_steps_init 5
@@ -74,4 +74,4 @@ echo
 ui_ok "Immich ready (server replicas=${CHOSEN_REPLICAS:-1}, storage=${CHOSEN_STORAGE_CLASS:-})"
 ui_info "Open: ${UI_BOLD}http://${ADDR}:2283${UI_RESET}"
 ui_info "DB password file: ${ROOT}/.db-password"
-ui_info "Re-run ./install.sh anytime to change replicas or storage preference"
+ui_info "Re-run ./manage.sh anytime to change replicas or storage preference"

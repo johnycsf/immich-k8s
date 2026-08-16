@@ -1,5 +1,5 @@
 # Immich on Kubernetes — official Immich GHCR images + Valkey + Immich Postgres
-# storageClassName is set by ./install.sh (prompt or STORAGE_CLASS=...).
+# storageClassName is set by ./manage.sh (prompt or STORAGE_CLASS=...).
 # Docs: https://docs.immich.app/
 apiVersion: v1
 kind: Namespace

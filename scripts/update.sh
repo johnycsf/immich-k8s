@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Safely update Immich on Kubernetes; pre-update snapshot via backup.sh.
 set -euo pipefail
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 NS=immich
 
@@ -20,7 +20,7 @@ print_offsite_tip() {
   cat <<'EOF'
 
 Tip: Immich libraries are large — keep backups/ on big disks or copy off-box.
-Restore: ./backup.sh --restore --from ./backups
+Restore: ./manage.sh backup --restore --from ./backups
 EOF
 }
 
@@ -74,12 +74,12 @@ ask_backup_retention() {
 }
 
 create_backup() {
-  [[ -x "${ROOT}/backup.sh" ]] || { echo "Missing backup.sh" >&2; exit 1; }
+  [[ -x "${ROOT}/scripts/backup.sh" ]] || { echo "Missing backup.sh" >&2; exit 1; }
   local keep="${DEFAULT_KEEP}"
   [[ -f "${KEEP_FILE}" ]] && keep="$(tr -dc '0-9' <"${KEEP_FILE}" || true)"
   [[ -z "${keep}" ]] && keep="${DEFAULT_KEEP}"
-  echo "==> Pre-update snapshot via ./backup.sh ..."
-  "${ROOT}/backup.sh" --dest "${BACKUP_ROOT}" --keep "${keep}"
+  echo "==> Pre-update snapshot via ./manage.sh backup ..."
+  "${ROOT}/scripts/backup.sh" --dest "${BACKUP_ROOT}" --keep "${keep}"
   if [[ -L "${BACKUP_ROOT}/latest" ]]; then
     BACKUP_DIR="$(readlink -f "${BACKUP_ROOT}/latest")"
   else
@@ -89,12 +89,12 @@ create_backup() {
 }
 
 need kubectl
-# shellcheck source=deps.sh
-source "${ROOT}/deps.sh"
+# shellcheck source=scripts/deps.sh
+source "${ROOT}/scripts/deps.sh"
 require_storage_class
 
 if ! kubectl -n "$NS" get deploy immich-server >/dev/null 2>&1; then
-  echo "Immich is not installed yet. Run ./install.sh first." >&2
+  echo "Immich is not installed yet. Run ./manage.sh first." >&2
   exit 1
 fi
 

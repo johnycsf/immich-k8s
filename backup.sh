@@ -20,10 +20,11 @@ need_rsync() {
 usage() {
   cat <<'EOF'
 Usage:
-  ./backup.sh --dest /path/to/backup-root [--keep N] [--include-model-cache] [--encrypt]
+  ./backup.sh --dest /path/to/backup-root [--keep N] [--include-model-cache] [--archive FMT] [--encrypt]
   ./backup.sh --restore --from /path/to/backup-root-or-snapshot-or.tar.age
   ./backup.sh --help
 
+  --archive tar.gz|tar.xz|zip [--archive-password]
   --encrypt / --export-dir / --age-recipient / --age-identity / --passphrase
   SHA256 = integrity; age = optional encrypted offsite export.
 EOF
@@ -33,6 +34,8 @@ MODE=""; DEST=""; FROM=""; KEEP=""; INCLUDE_MODEL_CACHE=0
 ENCRYPT="${BACKUP_ENCRYPT:-0}"
 EXPORT_DIR="${BACKUP_EXPORT_DIR:-}"
 ENCRYPT_PASSPHRASE=0
+ARCHIVE_FORMAT="${BACKUP_ARCHIVE:-}"
+ARCHIVE_PASSWORD="${BACKUP_ARCHIVE_PASSWORD:-0}"
 AGE_RECIPIENTS=()
 AGE_IDENTITY="${BACKUP_AGE_IDENTITY:-}"
 while [[ $# -gt 0 ]]; do
@@ -40,6 +43,11 @@ while [[ $# -gt 0 ]]; do
     --dest) DEST="$2"; MODE="${MODE:-backup}"; shift 2 ;;
     --from) FROM="$2"; shift 2 ;;
     --restore) MODE="restore"; shift ;;
+    --archive)
+      [[ $# -ge 2 ]] || { echo "--archive needs tar.gz|tar.xz|zip" >&2; exit 1; }
+      ARCHIVE_FORMAT="$2"; shift 2 ;;
+    --archive-password)
+      ARCHIVE_PASSWORD=1; shift ;;
     --encrypt)
       ENCRYPT=1; shift ;;
     --export-dir)

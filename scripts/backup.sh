@@ -136,11 +136,13 @@ sha256_file() {
 }
 
 verify_pg_dump() {
-  local f="$1"
+  local f="$1" sample=""
   [[ -s "$f" ]] || { echo "Empty dump: $f" >&2; return 1; }
   if [[ "$f" == *.gz ]]; then
     gzip -t "$f" || return 1
-    gzip -dc "$f" | head -c 200 | grep -qE 'PostgreSQL|CREATE|SET' || return 1
+    # Avoid gzip|head|grep under pipefail (head → SIGPIPE/141 on valid dumps).
+    sample="$(gzip -dc "$f" 2>/dev/null | head -c 4096 || true)"
+    grep -qE 'PostgreSQL|CREATE|SET' <<<"${sample}" || return 1
   fi
   echo "    Verified dump ($(du -h "$f" | awk '{print $1}'))."
 }

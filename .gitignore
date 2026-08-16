@@ -3,3 +3,4 @@ backups/
 .backup-keep-count
 .db-password
 .storage-class
+.replicas

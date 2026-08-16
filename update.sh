@@ -102,6 +102,7 @@ create_backup
 
 echo "==> Applying manifests..."
 apply_manifest "${ROOT}/deploy.yaml"
+apply_saved_replicas immich
 echo "==> Rolling out (picks up newer :v3 / image digests)..."
 kubectl -n "$NS" rollout restart deployment/database deployment/redis deployment/immich-server deployment/immich-machine-learning
 kubectl -n "$NS" rollout status deployment/database --timeout=300s

@@ -140,7 +140,7 @@ verify_pg_dump() {
   [[ -s "$f" ]] || { echo "Empty dump: $f" >&2; return 1; }
   if [[ "$f" == *.gz ]]; then
     gzip -t "$f" || return 1
-    # Avoid gzip|head|grep under pipefail (head → SIGPIPE/141 on valid dumps).
+    # Avoid gzip|head|grep under pipefail (head -> SIGPIPE/141 on valid dumps).
     sample="$(gzip -dc "$f" 2>/dev/null | head -c 4096 || true)"
     grep -qE 'PostgreSQL|CREATE|SET' <<<"${sample}" || return 1
   fi
@@ -189,7 +189,7 @@ verify_snapshot_integrity() {
     out="$(cd "$snap" && sha256sum -c SHA256SUMS 2>&1)"; rc=$?
     set -e
     if [[ "$rc" -ne 0 ]]; then
-      echo "WARNING: SHA256 FAILED — integrity may be lost; restore may cause issues." >&2
+      echo "WARNING: SHA256 FAILED - integrity may be lost; restore may cause issues." >&2
       printf '%s\n' "$out" | grep -v ': OK$' | head -40 >&2 || true
       warn=1
     fi
@@ -326,7 +326,7 @@ do_restore() {
   echo "==> Importing SQL..."
   if ! gzip -dc "${snap}/immich-db.sql.gz" \
     | kubectl -n "$NS" exec -i "${dbp}" -- env PGPASSWORD="${pass}" psql -U "${user}" -d "${db}"; then
-    echo "SQL IMPORT FAILED — leaving server scaled to 0." >&2
+    echo "SQL IMPORT FAILED - leaving server scaled to 0." >&2
     exit 1
   fi
 

@@ -19,7 +19,7 @@ need() {
 print_offsite_tip() {
   cat <<'EOF'
 
-Tip: Immich libraries are large — keep backups/ on big disks or copy off-box.
+Tip: Immich libraries are large - keep backups/ on big disks or copy off-box.
 Restore: ./manage.sh backup --restore --from ./backups
 EOF
 }

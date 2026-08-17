@@ -7,7 +7,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # shellcheck source=scripts/deps.sh
 source "${ROOT}/scripts/deps.sh"
 
-ui_banner "Immich" "Kubernetes · official images · storage + replicas interactive"
+ui_banner "Immich" "Kubernetes - official images - storage + replicas interactive"
 ui_steps_init 5
 
 ui_step "Checking host dependencies"
@@ -22,7 +22,7 @@ configure_k8s_replicas immich
 ALREADY=false
 if kubectl -n immich get deploy immich-server >/dev/null 2>&1; then
   ALREADY=true
-  ui_info "Existing Immich install found — refreshing manifests/replicas"
+  ui_info "Existing Immich install found - refreshing manifests/replicas"
 fi
 
 ui_step "Applying manifests"
@@ -47,7 +47,7 @@ else
     --dry-run=client -o yaml | kubectl apply -f -
   umask 077
   printf '%s\n' "${PASS}" >"${ROOT}/.db-password"
-  ui_ok "Generated DB password → ${ROOT}/.db-password"
+  ui_ok "Generated DB password -> ${ROOT}/.db-password"
   ui_run "Restart workloads for Secret" kubectl -n immich rollout restart \
     deployment/database deployment/immich-server deployment/immich-machine-learning deployment/redis
 fi

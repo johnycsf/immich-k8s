@@ -1,5 +1,7 @@
 ## Unreleased
 
+- Explicitly pin `IMMICH_PORT: "3003"` in `immich-machine-learning` deployment to guarantee machine learning worker binds to port 3003.
+
 - Manage menu includes **Restore** (backup root, snapshot, or archive).
 
 - Single entrypoint: `./manage.sh` (install/update/backup helpers moved under `scripts/`).

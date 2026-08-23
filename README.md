@@ -72,6 +72,18 @@ The library PVC defaults to **100Gi** — edit `deploy.yaml` before install if y
 
 Liked the install? Star the repo or [sponsor johnycsf](https://github.com/sponsors/johnycsf) so more stacks stay maintained.
 
+## Fix greyed-out or broken library assets
+
+If photos/videos appear greyed out or logs mention missing thumbnails / video metadata:
+
+```bash
+chmod +x fix-library/fix-library.sh
+./fix-library/fix-library.sh scan
+./fix-library/fix-library.sh fix --apply --wait-metadata
+```
+
+See [fix-library/README.md](fix-library/README.md). Back up first: `./manage.sh backup --dest ./backups`.
+
 ## Update
 
 ```bash

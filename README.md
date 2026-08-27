@@ -1,26 +1,27 @@
 # immich-k8s
 
-![Repobeats analytics image](https://repobeats.axiom.co/api/embed/5f30bdb914c6fd7b0af52c0e46864ee86df199ee.svg "Repobeats analytics image")
-
 [![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/johnycsf)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Issues](https://img.shields.io/badge/issues-welcome-lightgrey.svg)](../../issues/new/choose)
 
-Deploy [Immich](https://immich.app/) on Kubernetes.
+Immich on Kubernetes for homelab beginners — official images, backup-before-update.
 
-Docker version: [immich-docker](https://github.com/johnycsf/immich-docker)
+![`./manage.sh` control center](docs/manage-demo.gif)
+
+## Install
+
+```bash
+git clone https://github.com/johnycsf/immich-k8s.git
+cd immich-k8s
+chmod +x manage.sh
+./manage.sh
+```
+
+`./manage.sh` opens a **↑/↓ menu** with a `>` cursor (j/k and Enter also work). It asks for **StorageClass** and **replica count**. Open the URL the script prints and create your admin account.
 
 Uses **Immich’s official GHCR images** (server, machine-learning, Immich Postgres) plus **Valkey** (Redis-compatible cache from Immich’s official install stack). No LinuxServer or unofficial Immich forks.
 
-**Immich on Kubernetes for homelab beginners** — official images, StorageClass/replica prompts, safe updates & backups.
-
-> **Choose your path:** [Docker Compose](https://github.com/johnycsf/immich-docker) · **Kubernetes (this repo)**
-
-## Who this is for
-
-**Good fit:** small k3s/homelab clusters where you want Immich without hand-writing a pile of manifests.
-
-**Not for:** large multi-tenant production clusters — keep replicas conservative (RWO volumes) and read the install prompts.
+Docker version: [immich-docker](https://github.com/johnycsf/immich-docker)
 
 ## Why this repo (not just another manifest dump)
 
@@ -32,47 +33,55 @@ Uses **Immich’s official GHCR images** (server, machine-learning, Immich Postg
 - Incremental hardlink **`./manage.sh backup`** + restore
 - **Official upstream images only**
 
-## Support this work
-
-**If this project helped you — or saved you hours of setup — please consider [sponsoring or donating](https://github.com/sponsors/johnycsf).** These repos stay free and maintained because people like you chip in.
-
-Your sponsorship funds:
-
-- Keeping install, update, and backup scripts working across common Linux distros (and macOS where supported)
-- Testing safe upgrades against **official** upstream images before you run them
-- Building more beginner-friendly homelab stacks with the same `./manage.sh` experience
-
-[![Sponsor johnycsf](https://img.shields.io/badge/GitHub%20Sponsors-Donate-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/johnycsf)
-
-👉 **[github.com/sponsors/johnycsf](https://github.com/sponsors/johnycsf)** — even a small monthly sponsorship helps keep development going.
-
 ## What you need
 
 - A Kubernetes cluster (`kubectl` context already set)
 - `sudo` on this machine so `./manage.sh` can install missing tools (kubectl, helm, curl, openssl, rsync, …)
 - Disk for PersistentVolumes
 
-`./manage.sh` is interactive (colors + step progress). It asks for **StorageClass** and **replica count** (with a safe per-app suggestion). Re-run it later to change those choices. Non-interactive: `STORAGE_CLASS=longhorn REPLICAS=1 ./manage.sh`.
+Good fit: small k3s/homelab clusters. Keep replicas conservative on RWO volumes.
 
-## Interactive control center
+## StorageClass and replicas
 
-`./manage.sh` opens a simple **↑/↓ menu** with a `>` cursor (j/k and Enter also work). No extra packages required.
+Install prompts for **StorageClass** and **replica count** (with a safe per-app suggestion). Re-run `./manage.sh` later to change those choices.
 
-## Install Immich
-
-```bash
-git clone https://github.com/johnycsf/immich-k8s.git
-cd immich-k8s
-chmod +x manage.sh
-./manage.sh          # interactive control center
-# or: ./manage.sh
-```
-
-Open the URL printed by the script and create your admin account.
+Non-interactive: `STORAGE_CLASS=longhorn REPLICAS=1 ./manage.sh`.
 
 The library PVC defaults to **100Gi** — edit `deploy.yaml` before install if you need more space.
 
-Liked the install? Star the repo or [sponsor johnycsf](https://github.com/sponsors/johnycsf) so more stacks stay maintained.
+## Update
+
+```bash
+./manage.sh update
+```
+
+Runs `./manage.sh backup` first, then reapplies manifests and rolls out new images. Asks how many local backups to keep.
+
+## Backup and restore
+
+Prefer an external drive or NAS (libraries are large; hardlinks need one filesystem):
+
+```bash
+./manage.sh backup --dest /mnt/usb/immich-k8s-backups --keep 3
+```
+
+Restore (this cluster or a new one after `./manage.sh`):
+
+```bash
+./manage.sh backup --restore --from /mnt/usb/immich-k8s-backups
+./manage.sh backup --restore --from ./backups
+```
+
+Postgres uses a verified logical dump. The photo library is archived from the running pod then stored with incremental rsync hardlinks. SHA256 seals dumps/config; the library uses a fast inventory fingerprint. Restore warns (does not abort) if integrity looks wrong.
+
+## Uninstall
+
+```bash
+kubectl delete namespace immich
+# PVCs/data are removed with the namespace when using Longhorn reclaim policies as configured
+```
+
+Or use **Uninstall** in `./manage.sh`.
 
 ## Fix greyed-out or broken library assets
 
@@ -85,37 +94,6 @@ chmod +x fix-library/fix-library.sh
 ```
 
 See [fix-library/README.md](fix-library/README.md). Back up first: `./manage.sh backup --dest ./backups`.
-
-## Update
-
-```bash
-./manage.sh update
-```
-
-Runs `./manage.sh backup` first, then reapplies manifests and rolls out new images. Asks how many local backups to keep.
-
-Restore:
-
-```bash
-./manage.sh backup --restore --from ./backups
-./manage.sh backup --restore --from /mnt/usb/immich-backups
-```
-
-## Disaster recovery
-
-```bash
-./manage.sh backup --dest /mnt/usb/immich-k8s-backups --keep 3
-./manage.sh backup --restore --from /mnt/usb/immich-k8s-backups
-```
-
-Postgres uses a verified logical dump. The photo library is archived from the running pod then stored with incremental rsync hardlinks. SHA256 seals dumps/config; the library uses a fast inventory fingerprint. Restore warns (does not abort) if integrity looks wrong.
-
-## Uninstall
-
-```bash
-kubectl delete namespace immich
-# PVCs/data are removed with the namespace when using Longhorn reclaim policies as configured
-```
 
 ## Credits
 
@@ -136,3 +114,5 @@ Local snapshots stay as incremental hardlink trees (fast rollback). Optionally c
 ## Security
 
 See [SECURITY.md](SECURITY.md) for how to report vulnerabilities.
+
+Sponsorship funds testing and maintenance: [github.com/sponsors/johnycsf](https://github.com/sponsors/johnycsf).
